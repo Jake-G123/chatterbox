@@ -216,18 +216,21 @@ public class ChatterboxClient {
         // throw new UnsupportedOperationException("Authenticate not yet implemented. Implement authenticate() and remove this exception!");
         // Hint: use the username/password instance variables, DO NOT READ FROM userInput
         // send messages using serverWriter (don't forget to flush!)
-        serverWriter.write(serverReader.readLine());
-        serverWriter.newLine();
+        String x = serverReader.readLine();
+        if (x != null) {
+            userOutput.write((x + "\n").getBytes());
+            userOutput.flush();
+        }
+
         serverWriter.write(username + " " + password + "\n");
         serverWriter.flush();
+        
         String line = serverReader.readLine();
         if (line == null) {
             throw new IllegalArgumentException(line);
-        } else {
-            serverWriter.write(line);
-            serverWriter.newLine();
-            serverWriter.flush();
         }
+        userOutput.write((line + "\n").getBytes());
+        userOutput.flush();
    }
 
     /**
@@ -243,7 +246,8 @@ public class ChatterboxClient {
      * @throws IOException
      */
     public void streamChat() throws IOException {
-        throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        //throw new UnsupportedOperationException("Chat streaming not yet implemented. Implement streamChat() and remove this exception!");
+        printIncomingChats();
     }
 
     /**
@@ -263,6 +267,23 @@ public class ChatterboxClient {
     public void printIncomingChats() {
         // Listen on serverReader
         // Write to userOutput, NOT System.out
+        try {
+            String line;
+            while ((line = serverReader.readLine()) != null) {
+                userOutput.write((line + "\n").getBytes());
+                userOutput.flush();
+            }
+            userOutput.write(("disconnected").getBytes());
+            userOutput.flush();
+
+        } catch (IOException e) {
+            try {
+                userOutput.write(("disconnected").getBytes());
+            } catch (IOException ignored) {
+
+            }
+        }
+
     }
 
     /**
